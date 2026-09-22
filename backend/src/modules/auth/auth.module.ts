@@ -18,9 +18,18 @@ import { UsersModule } from '../users/users.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
+        const isProd = configService.get<string>('NODE_ENV') === 'production';
+
         if (!secret) {
-          throw new Error('JWT_SECRET configuration is missing');
+          throw new Error('CRITICAL SECURITY ERROR: JWT_SECRET configuration is missing');
         }
+
+        if (isProd && (secret.length < 32 || secret.includes('change_in_production'))) {
+          throw new Error(
+            'CRITICAL SECURITY ERROR: JWT_SECRET must be at least 32 characters long and not use placeholder values in production',
+          );
+        }
+
         return {
           secret,
           signOptions: {

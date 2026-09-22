@@ -13,13 +13,18 @@ import * as schema from './schema';
       provide: PG_CONNECTION_POOL,
       inject: [ConfigService],
       useFactory: (configService: ConfigService): Pool => {
-        const connectionString = configService.get<string>(
-          'DATABASE_URL',
-          'postgresql://postgres:postgrespassword@localhost:5432/opspulse_db',
-        );
+        const isProd = configService.get<string>('NODE_ENV') === 'production';
+        const connectionString = configService.get<string>('DATABASE_URL');
+
+        if (!connectionString && isProd) {
+          throw new Error('CRITICAL SECURITY ERROR: DATABASE_URL is not defined in production environment');
+        }
+
+        const effectiveConnectionString =
+          connectionString || 'postgresql://postgres:postgrespassword@localhost:5432/opspulse_db';
 
         const pool = new Pool({
-          connectionString,
+          connectionString: effectiveConnectionString,
           max: 20,
           idleTimeoutMillis: 30000,
           connectionTimeoutMillis: 5000,

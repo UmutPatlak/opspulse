@@ -8,14 +8,24 @@ node_modules/
 .yarn/install-state.gz
 .pnpm-store
 
-# Environment variables & secrets (ensure no sensitive values are tracked)
+# Environment variables & secrets (CRITICAL: Never commit secrets or actual .env files)
 .env
 .env.*
-!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.env
+!.env.example
+!backend/.env.example
+
+# Certificates & Private Keys
 *.pem
 *.key
 *.cert
+*.crt
+*.p12
+*.pfx
 
 # Build outputs & cache
 dist/
@@ -46,4 +56,3 @@ Thumbs.db
 *.sln
 *.sw?
 *.bak
-
